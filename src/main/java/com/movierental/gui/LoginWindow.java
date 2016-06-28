@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
 import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.UserDAOImpl;
+import com.movierental.dao.UserDAOJDBCImpl;
 import com.movierental.pojo.User;
 
 @SuppressWarnings("serial")
@@ -31,7 +31,7 @@ public class LoginWindow extends JFrame {
 	private final UserBusisessService ubs;
 
 	public LoginWindow() {
-		this.ubs = new UserBusinessServiceImpl(new UserDAOImpl(MySQLConnection.getInstance()));
+		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
 
 		this.getContentPane().setLayout(null);
 

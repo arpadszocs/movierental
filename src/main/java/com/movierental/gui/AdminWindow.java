@@ -27,7 +27,7 @@ import com.movierental.bs.UserBusisessService;
 import com.movierental.dao.FilmDAOImpl;
 import com.movierental.dao.MySQLConnection;
 import com.movierental.dao.RentalDAOImpl;
-import com.movierental.dao.UserDAOImpl;
+import com.movierental.dao.UserDAOJDBCImpl;
 import com.movierental.pojo.Film;
 import com.movierental.pojo.Rental;
 import com.movierental.pojo.User;
@@ -65,7 +65,7 @@ public class AdminWindow extends JFrame {
 	public AdminWindow() {
 
 		this.fbs = new FilmBusinessServiceImpl(new FilmDAOImpl(MySQLConnection.getInstance()));
-		this.ubs = new UserBusinessServiceImpl(new UserDAOImpl(MySQLConnection.getInstance()));
+		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
 		this.rbs = new RentalBusinessServiceImpl(new RentalDAOImpl(MySQLConnection.getInstance()));
 		this.panel = new JPanel();
 		this.getContentPane().add(this.panel, BorderLayout.SOUTH);

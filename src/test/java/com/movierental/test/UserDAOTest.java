@@ -7,19 +7,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.UserDAOImpl;
+import com.movierental.dao.UserDAOJDBCImpl;
 import com.movierental.pojo.User;
 
 public class UserDAOTest {
 
 	private User user;
-	private UserDAOImpl userDAO;
+	private UserDAOJDBCImpl userDAO;
 
 	@Before
 	public void setUp() {
 
 		this.user = new User(9000, "Name", "Email", "Password", "Role");
-		this.userDAO = new UserDAOImpl(MySQLConnection.getInstance());
+		this.userDAO = new UserDAOJDBCImpl(MySQLConnection.getInstance());
 	}
 
 	@Test

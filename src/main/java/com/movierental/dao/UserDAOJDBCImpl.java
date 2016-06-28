@@ -7,11 +7,11 @@ import java.util.List;
 
 import com.movierental.pojo.User;
 
-public class UserDAOImpl implements UserDAO {
+public class UserDAOJDBCImpl implements UserDAO {
 
 	private final DBConnection dbConnection;
 
-	public UserDAOImpl(final DBConnection dbConnection) {
+	public UserDAOJDBCImpl(final DBConnection dbConnection) {
 		this.dbConnection = dbConnection;
 	}
 

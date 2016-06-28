@@ -1,14 +1,25 @@
 package com.movierental.pojo;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class User implements Comparable<User> {
+
+	@Id
 	private final Integer Id;
 
+	@Column
 	private final String name;
 
+	@Column
 	private final String email;
 
+	@Column
 	private final String password;
 
+	@Column
 	private final String role;
 
 	public User(final Integer id, final String name, final String email, final String password, final String role) {
