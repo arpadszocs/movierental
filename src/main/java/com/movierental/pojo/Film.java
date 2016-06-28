@@ -57,4 +57,66 @@ public class Film implements Comparable<Film> {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (this.Id == null ? 0 : this.Id.hashCode());
+		result = prime * result + (this.genre == null ? 0 : this.genre.hashCode());
+		result = prime * result + (this.length == null ? 0 : this.length.hashCode());
+		result = prime * result + (this.name == null ? 0 : this.name.hashCode());
+		result = prime * result + (this.year == null ? 0 : this.year.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		final Film other = (Film) obj;
+		if (this.Id == null) {
+			if (other.Id != null) {
+				return false;
+			}
+		} else if (!this.Id.equals(other.Id)) {
+			return false;
+		}
+		if (this.genre == null) {
+			if (other.genre != null) {
+				return false;
+			}
+		} else if (!this.genre.equals(other.genre)) {
+			return false;
+		}
+		if (this.length == null) {
+			if (other.length != null) {
+				return false;
+			}
+		} else if (!this.length.equals(other.length)) {
+			return false;
+		}
+		if (this.name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!this.name.equals(other.name)) {
+			return false;
+		}
+		if (this.year == null) {
+			if (other.year != null) {
+				return false;
+			}
+		} else if (!this.year.equals(other.year)) {
+			return false;
+		}
+		return true;
+	}
+
 }
