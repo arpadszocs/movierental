@@ -42,7 +42,9 @@ public class RentalDAOTest {
 	public void testRentalDAOupdateMethod() throws SQLException {
 		try {
 			this.rentalDAO.save(this.rental);
+			// TODO: change start date
 			this.rentalDAO.update(this.rental);
+			// TODO: retrieve from db and check for equality (.equals())
 		} catch (final SQLException e) {
 			e.printStackTrace();
 		} finally {

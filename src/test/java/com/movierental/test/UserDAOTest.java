@@ -42,7 +42,8 @@ public class UserDAOTest {
 		try {
 			this.userDAO.save(this.user);
 			this.userDAO.update(this.user);
-			Assert.assertTrue(this.userDAO.findByName("Name").equals(this.user));
+			final User updatedObj = this.userDAO.findByName("Name");
+			Assert.assertEquals(updatedObj, this.user);
 		} catch (final SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -57,7 +58,8 @@ public class UserDAOTest {
 			final User userToUse = new User(9001, "UName", "UEmail", "UPw", "URole");
 			this.userDAO.save(userToUse);
 			this.userDAO.delete(userToUse);
-			Assert.assertTrue(this.userDAO.findById(9001) == null);
+			final User empty = this.userDAO.findById(9001);
+			Assert.assertNull(empty);
 		} catch (final SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

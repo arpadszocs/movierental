@@ -94,7 +94,7 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public void renumber() throws SQLException {
 		this.dbConnection.insert("SET @i=0;");
-		this.dbConnection.insert("UPDATE user SET ID=(@i:=@i+1);");
+		this.dbConnection.insert("UPDATE user SET ID=(@i:=@i+1); WHERE Role != 'admin'");
 	}
 
 }
