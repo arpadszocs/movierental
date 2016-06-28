@@ -8,19 +8,23 @@ import javax.persistence.Id;
 public class User implements Comparable<User> {
 
 	@Id
-	private final Integer Id;
+	private Integer Id;
 
 	@Column
-	private final String name;
+	private String name;
 
 	@Column
-	private final String email;
+	private String email;
 
 	@Column
-	private final String password;
+	private String password;
 
 	@Column
-	private final String role;
+	private String role;
+
+	public User() {
+		super();
+	}
 
 	public User(final Integer id, final String name, final String email, final String password, final String role) {
 		super();

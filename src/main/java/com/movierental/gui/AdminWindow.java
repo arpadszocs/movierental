@@ -24,10 +24,8 @@ import com.movierental.bs.RentalBusinessService;
 import com.movierental.bs.RentalBusinessServiceImpl;
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
-import com.movierental.dao.FilmDAOImpl;
-import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.RentalDAOImpl;
-import com.movierental.dao.UserDAOJDBCImpl;
+import com.movierental.dao.factory.DAOFactory;
+import com.movierental.dao.factory.HibernateDAOFactory;
 import com.movierental.pojo.Film;
 import com.movierental.pojo.Rental;
 import com.movierental.pojo.User;
@@ -63,10 +61,10 @@ public class AdminWindow extends JFrame {
 	private DefaultTableModel rentalModel;
 
 	public AdminWindow() {
-
-		this.fbs = new FilmBusinessServiceImpl(new FilmDAOImpl(MySQLConnection.getInstance()));
-		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
-		this.rbs = new RentalBusinessServiceImpl(new RentalDAOImpl(MySQLConnection.getInstance()));
+		final DAOFactory daoFactory = new HibernateDAOFactory();
+		this.fbs = new FilmBusinessServiceImpl(daoFactory.getFilmDAO());
+		this.ubs = new UserBusinessServiceImpl(daoFactory.getUserDAO());
+		this.rbs = new RentalBusinessServiceImpl(daoFactory.getRentalDAO());
 		this.panel = new JPanel();
 		this.getContentPane().add(this.panel, BorderLayout.SOUTH);
 
