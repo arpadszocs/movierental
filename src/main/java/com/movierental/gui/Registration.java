@@ -1,7 +1,5 @@
 package com.movierental.gui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
 import javax.swing.JButton;
@@ -13,8 +11,8 @@ import javax.swing.JTextField;
 
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
-import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.UserDAOJDBCImpl;
+import com.movierental.dao.factory.DAOFactory;
+import com.movierental.dao.factory.HibernateDAOFactory;
 import com.movierental.pojo.User;
 
 @SuppressWarnings("serial")
@@ -31,8 +29,12 @@ public class Registration extends JFrame {
 	private final JButton cancel;
 	private final UserBusisessService ubs;
 
+	@SuppressWarnings("static-access")
 	public Registration() {
-		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
+
+		final DAOFactory daoFactory = new HibernateDAOFactory();
+
+		this.ubs = new UserBusinessServiceImpl(daoFactory.getUserDAO());
 		this.getContentPane().setLayout(null);
 
 		this.name = new JLabel("Name");
@@ -77,47 +79,37 @@ public class Registration extends JFrame {
 		this.cancel.setBounds(161, 273, 89, 23);
 		this.getContentPane().add(this.cancel);
 
-		this.register.addActionListener(new ActionListener() {
-
-			@SuppressWarnings({ "static-access", "unused" })
-			@Override
-			public void actionPerformed(final ActionEvent arg0) {
-				final MySQLConnection dbConnection;
-				final String password = new String(Registration.this.passwordField.getPassword());
-				final String confirmPassword = new String(Registration.this.confirmPasswordField.getPassword());
-				try {
-					final int id = Registration.this.ubs.getLastId();
-					if (Registration.this.nameField.getText().length() < 4) {
-						new JOptionPane().showMessageDialog(Registration.this, "Name must have at least 4 characters");
-					} else if (Registration.this.emailField.getText().length() < 5) {
-						new JOptionPane().showMessageDialog(Registration.this, "Email must have at least 5 characters");
-					} else if (password.length() < 5 || password.length() > 20) {
-						new JOptionPane().showMessageDialog(Registration.this,
-								"Password must be between 5 and 20 characters");
-					} else if (!password.equals(confirmPassword)) {
-						new JOptionPane().showMessageDialog(Registration.this, "Passwords must match");
-					} else {
-						final User user = new User(id + 1, Registration.this.nameField.getText(),
-								Registration.this.emailField.getText(), password, "user");
-						Registration.this.ubs.save(user);
-						new JOptionPane().showMessageDialog(Registration.this, "Done");
-						new LoginWindow().setupWindow();
-						Registration.this.dispose();
-					}
-				} catch (final SQLException e2) {
-					e2.printStackTrace();
+		this.register.addActionListener(arg0 -> {
+			final String password = new String(Registration.this.passwordField.getPassword());
+			final String confirmPassword = new String(Registration.this.confirmPasswordField.getPassword());
+			try {
+				final int id = Registration.this.ubs.getLastId();
+				if (Registration.this.nameField.getText().length() < 4) {
+					new JOptionPane().showMessageDialog(Registration.this, "Name must have at least 4 characters");
+				} else if (Registration.this.emailField.getText().length() < 5) {
+					new JOptionPane().showMessageDialog(Registration.this, "Email must have at least 5 characters");
+				} else if (password.length() < 5 || password.length() > 20) {
+					new JOptionPane().showMessageDialog(Registration.this,
+							"Password must be between 5 and 20 characters");
+				} else if (!password.equals(confirmPassword)) {
+					new JOptionPane().showMessageDialog(Registration.this, "Passwords must match");
+				} else {
+					final User user = new User(id + 1, Registration.this.nameField.getText(),
+							Registration.this.emailField.getText(), password, "user");
+					Registration.this.ubs.save(user);
+					new JOptionPane().showMessageDialog(Registration.this, "Done");
+					new LoginWindow().setupWindow();
+					Registration.this.dispose();
 				}
+			} catch (final SQLException e2) {
+				e2.printStackTrace();
 			}
 		});
 
-		this.cancel.addActionListener(new ActionListener() {
+		this.cancel.addActionListener(arg0 -> {
+			new LoginWindow().setupWindow();
+			Registration.this.dispose();
 
-			@Override
-			public void actionPerformed(final ActionEvent arg0) {
-				new LoginWindow().setupWindow();
-				Registration.this.dispose();
-
-			}
 		});
 	}
 
