@@ -25,19 +25,19 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public void save(final User film) throws SQLException {
-		this.hibernateTemplate.save(film);
+	public void save(final User user) throws SQLException {
+		this.hibernateTemplate.save(user);
 
 	}
 
 	@Override
-	public void update(final User film) throws SQLException {
-		this.hibernateTemplate.update(film);
+	public void update(final User user) throws SQLException {
+		this.hibernateTemplate.update(user);
 	}
 
 	@Override
-	public void delete(final User film) throws SQLException {
-		this.hibernateTemplate.delete(film);
+	public void delete(final User user) throws SQLException {
+		this.hibernateTemplate.delete(user);
 	}
 
 	@Override
@@ -67,14 +67,20 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public User findByName(final String name) throws SQLException {
-		// TODO: write it
-		return null;
+		final DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
+		criteria.add(Restrictions.eq("name", name));
+		@SuppressWarnings("unchecked")
+		final List<User> userList = (List<User>) this.hibernateTemplate.findByCriteria(criteria);
+		return userList.get(0);
 	}
 
 	@Override
 	public User findByEmail(final String email) throws SQLException {
-		// TODO: write it
-		return null;
+		final DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
+		criteria.add(Restrictions.eq("email", email));
+		@SuppressWarnings("unchecked")
+		final List<User> userList = (List<User>) this.hibernateTemplate.findByCriteria(criteria);
+		return userList.get(0);
 	}
 
 }
