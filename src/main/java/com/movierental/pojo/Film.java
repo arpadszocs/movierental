@@ -1,15 +1,29 @@
 package com.movierental.pojo;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Film implements Comparable<Film> {
-	private final Integer Id;
+	@Id
+	private Integer Id;
 
-	private final String name;
+	@Column
+	private String name;
 
-	private final Integer length;
+	@Column
+	private Integer length;
 
-	private final String genre;
+	@Column
+	private String genre;
 
-	private final Integer year;
+	@Column
+	private Integer year;
+
+	public Film() {
+		super();
+	}
 
 	public Film(final Integer id, final String name, final Integer length, final String genre, final Integer year) {
 		super();

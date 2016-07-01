@@ -2,16 +2,30 @@ package com.movierental.pojo;
 
 import java.sql.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Rental {
-	private final Integer Id;
+	@Id
+	private Integer Id;
 
-	private final Integer filmId;
+	@Column
+	private Integer filmId;
 
-	private final Integer userId;
+	@Column
+	private Integer userId;
 
-	private final Date startDate;
+	@Column
+	private Date startDate;
 
-	private final Date endDate;
+	@Column
+	private Date endDate;
+
+	public Rental() {
+		super();
+	}
 
 	public Rental(final Integer id, final Integer filmId, final Integer userId, final Date startDate,
 			final Date endDate) {

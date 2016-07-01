@@ -55,6 +55,10 @@ public class User implements Comparable<User> {
 		return this.role;
 	}
 
+	public void setPassword(final String password) {
+		this.password = password;
+	}
+
 	@Override
 	public int compareTo(final User user) {
 		return this.getName().compareTo(user.getName());
