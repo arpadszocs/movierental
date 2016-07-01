@@ -9,18 +9,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.movierental.dao.FilmDAOImpl;
+import com.movierental.dao.FilmDAOJDBCImpl;
 import com.movierental.dao.MySQLConnection;
 import com.movierental.pojo.Film;
 
 public class FilmDAOTest {
 	private Film film;
-	private FilmDAOImpl filmDAO;
+	private FilmDAOJDBCImpl filmDAO;
 
 	@Before
 	public void setUp() {
 		this.film = new Film(9999, "Film name", 999, "Film genre", 9999);
-		this.filmDAO = new FilmDAOImpl(MySQLConnection.getInstance());
+		this.filmDAO = new FilmDAOJDBCImpl(MySQLConnection.getInstance());
 	}
 
 	@Test

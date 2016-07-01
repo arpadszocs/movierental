@@ -10,5 +10,7 @@
         <property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
         <!-- <property name="hbm2ddl.auto">create</property> -->
          <mapping class="com.movierental.pojo.User" />
+         <mapping class="com.movierental.pojo.Film" />
+         <mapping class="com.movierental.pojo.Rental" />
     </session-factory>
 </hibernate-configuration>

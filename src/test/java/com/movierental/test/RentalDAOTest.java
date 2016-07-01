@@ -11,12 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.RentalDAOImpl;
+import com.movierental.dao.RentalDAOJDBCImpl;
 import com.movierental.pojo.Rental;
 
 public class RentalDAOTest {
 	private Rental rental;
-	private RentalDAOImpl rentalDAO;
+	private RentalDAOJDBCImpl rentalDAO;
 	@SuppressWarnings("deprecation")
 	private static final Date START_DATE = new Date(116, 5, 11);
 	@SuppressWarnings("deprecation")
@@ -25,7 +25,7 @@ public class RentalDAOTest {
 	@Before
 	public void setUp() {
 		this.rental = new Rental(100, 10, 10, START_DATE, END_DATE);
-		this.rentalDAO = new RentalDAOImpl(MySQLConnection.getInstance());
+		this.rentalDAO = new RentalDAOJDBCImpl(MySQLConnection.getInstance());
 	}
 
 	@Test
