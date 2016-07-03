@@ -22,6 +22,7 @@ public class UserDAOImpl implements UserDAO {
 		final StandardServiceRegistry regisrty = new StandardServiceRegistryBuilder().configure().build();
 		sessionFactory = new MetadataSources(regisrty).buildMetadata().buildSessionFactory();
 		this.hibernateTemplate = new HibernateTemplate(sessionFactory);
+
 	}
 
 	@Override
@@ -62,7 +63,6 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public void renumber() throws SQLException {
-
 	}
 
 	@Override

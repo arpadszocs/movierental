@@ -3,7 +3,6 @@ package com.movierental.gui;
 import java.awt.BorderLayout;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.Calendar;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -30,6 +29,7 @@ import com.movierental.dao.UserDAOJDBCImpl;
 import com.movierental.pojo.Film;
 import com.movierental.pojo.Rental;
 import com.movierental.pojo.User;
+import com.toedter.calendar.JDateChooser;
 
 @SuppressWarnings("serial")
 public class UserWindow extends JFrame {
@@ -61,6 +61,10 @@ public class UserWindow extends JFrame {
 
 	private final JLabel confirmPassLabel;
 
+	private final JLabel rentDateS;
+
+	private final JLabel rentDateE;
+
 	private final JPasswordField oldPass;
 
 	private final JPasswordField newPass;
@@ -68,6 +72,12 @@ public class UserWindow extends JFrame {
 	private final JPasswordField confirmPass;
 
 	private final JPanel passChg;
+
+	private final JPanel datePanel;
+
+	private final JDateChooser dateChoserS;
+
+	private final JDateChooser dateChoserE;
 
 	private DefaultTableModel model;
 
@@ -83,6 +93,8 @@ public class UserWindow extends JFrame {
 		this.fbs = new FilmBusinessServiceImpl(new FilmDAOJDBCImpl(MySQLConnection.getInstance()));
 		this.rbs = new RentalBusinessServiceImpl(new RentalDAOJDBCImpl(MySQLConnection.getInstance()));
 		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
+
+		final java.util.Date today = new java.util.Date();
 
 		this.buttonPanel = new JPanel();
 		this.getContentPane().add(this.buttonPanel, BorderLayout.SOUTH);
@@ -104,6 +116,23 @@ public class UserWindow extends JFrame {
 
 		this.label = new JLabel(user.getName());
 		this.labelPanel.add(this.label);
+
+		this.datePanel = new JPanel();
+		this.rentDateS = new JLabel("Start Date");
+		this.rentDateE = new JLabel("End Date");
+
+		this.datePanel.setLayout(new BoxLayout(this.datePanel, BoxLayout.Y_AXIS));
+
+		this.dateChoserS = new JDateChooser();
+		this.dateChoserS.setLocale(this.getLocale());
+		this.dateChoserS.getJCalendar().setMinSelectableDate(today);
+		this.dateChoserE = new JDateChooser();
+		this.dateChoserE.setLocale(this.getLocale());
+		this.dateChoserE.getJCalendar().setMinSelectableDate(today);
+		this.datePanel.add(this.rentDateS);
+		this.datePanel.add(this.dateChoserS);
+		this.datePanel.add(this.rentDateE);
+		this.datePanel.add(this.dateChoserE);
 
 		this.filmTable();
 
@@ -130,27 +159,29 @@ public class UserWindow extends JFrame {
 		});
 
 		this.rent.addActionListener(e -> {
-			final Calendar calendar = Calendar.getInstance();
-			try {
-				final int id = UserWindow.this.rbs.getLastId();
-				UserWindow.this.rbs.save(new Rental(id + 1,
-						Integer.parseInt(UserWindow.this.model.getValueAt(UserWindow.this.filmTable.getSelectedRow(), 0)
-								.toString()),
-						user.getId(),
-						new Date(calendar.getTime().getYear(), calendar.getTime().getMonth(),
-								calendar.getTime().getDay()),
-						new Date(calendar.getTime().getYear(), calendar.getTime().getMonth(),
-								calendar.getTime().getDay() + 14)));
+			final int result = JOptionPane.showConfirmDialog(UserWindow.this, UserWindow.this.datePanel, "Rent",
+					JOptionPane.OK_CANCEL_OPTION);
+			if (result == JOptionPane.OK_OPTION) {
+				try {
+					final int id = UserWindow.this.rbs.getLastId();
+					final Date startDate = new Date(this.dateChoserS.getDate().getTime());
+					final Date endDate = new Date(this.dateChoserE.getDate().getTime());
+					UserWindow.this.rbs.save(new Rental(id + 1,
+							Integer.parseInt(UserWindow.this.model
+									.getValueAt(UserWindow.this.filmTable.getSelectedRow(), 0).toString()),
+							user.getId(), startDate, endDate));
 
-				new JOptionPane().showMessageDialog(UserWindow.this, "Done");
+					new JOptionPane().showMessageDialog(UserWindow.this, "Done");
 
-			} catch (final SQLException e2) {
-				e2.printStackTrace();
+				} catch (final SQLException e2) {
+					e2.printStackTrace();
+				}
 			}
 
 		});
 
 		this.myRentals.addActionListener(e -> UserWindow.this.rentalTable());
+
 		this.changePass.addActionListener(e -> {
 			final int result = JOptionPane.showConfirmDialog(UserWindow.this, UserWindow.this.passChg,
 					"Change your Password", JOptionPane.OK_CANCEL_OPTION);
