@@ -22,6 +22,7 @@ public class UserDAOImpl implements UserDAO {
 		final StandardServiceRegistry regisrty = new StandardServiceRegistryBuilder().configure().build();
 		sessionFactory = new MetadataSources(regisrty).buildMetadata().buildSessionFactory();
 		this.hibernateTemplate = new HibernateTemplate(sessionFactory);
+		this.hibernateTemplate.setCheckWriteOperations(false);
 
 	}
 
