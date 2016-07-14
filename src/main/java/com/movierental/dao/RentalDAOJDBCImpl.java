@@ -42,7 +42,7 @@ public class RentalDAOJDBCImpl implements RentalDAO {
 	@Override
 	public List<Rental> findByFilmId(final Integer filmId) throws SQLException {
 		final List<Rental> rentalList = new ArrayList<>();
-		final String selectQuery = "SELECT * FROM rental WHERE FIlmID = " + filmId;
+		final String selectQuery = "SELECT id, filmId, userId, startDate, endDate FROM rental WHERE FIlmID = " + filmId;
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		while (resultSet.next()) {
 			rentalList.add(new Rental(resultSet.getInt(1), resultSet.getInt(2), resultSet.getInt(3),
@@ -54,7 +54,7 @@ public class RentalDAOJDBCImpl implements RentalDAO {
 	@Override
 	public List<Rental> findByUserId(final Integer userId) throws SQLException {
 		final List<Rental> rentalList = new ArrayList<>();
-		final String selectQuery = "SELECT * FROM rental WHERE UserID = " + userId;
+		final String selectQuery = "SELECT id, filmId, userId, startDate, endDate FROM rental WHERE UserID = " + userId;
 
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		while (resultSet.next()) {
@@ -66,7 +66,7 @@ public class RentalDAOJDBCImpl implements RentalDAO {
 
 	@Override
 	public Rental findById(final Integer id) throws SQLException {
-		final String selectQuery = "SELECT * FROM rental WHERE ID = " + id;
+		final String selectQuery = "SELECT id, filmId, userId, startDate, endDate FROM rental WHERE ID = " + id;
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		if (resultSet.next()) {
 			return new Rental(resultSet.getInt(1), resultSet.getInt(2), resultSet.getInt(3), resultSet.getDate(4),
@@ -88,7 +88,7 @@ public class RentalDAOJDBCImpl implements RentalDAO {
 	@Override
 	public List<Rental> selectAll() throws SQLException {
 		final List<Rental> rentalList = new ArrayList<>();
-		final String selectQuery = "SELECT * FROM rental ";
+		final String selectQuery = "SELECT id, filmId, userId, startDate, endDate FROM rental ";
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		while (resultSet.next()) {
 			rentalList.add(new Rental(resultSet.getInt(1), resultSet.getInt(2), resultSet.getInt(3),

@@ -38,7 +38,7 @@ public class UserDAOJDBCImpl implements UserDAO {
 
 	@Override
 	public User findById(final Integer id) throws SQLException {
-		final String selectQuery = "SELECT * FROM user WHERE ID = " + id;
+		final String selectQuery = "SELECT id, name, email, password, role FROM user WHERE ID = " + id;
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		if (resultSet.next()) {
 			return new User(id, resultSet.getString(2), resultSet.getString(3), resultSet.getString(4),
@@ -49,7 +49,7 @@ public class UserDAOJDBCImpl implements UserDAO {
 
 	@Override
 	public User findByName(final String name) throws SQLException {
-		final String selectQuery = "SELECT * FROM user WHERE Name = '" + name + "'";
+		final String selectQuery = "SELECT id, name, email, password, role FROM user WHERE Name = '" + name + "'";
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		if (resultSet.next()) {
 			return new User(resultSet.getInt(1), name, resultSet.getString(3), resultSet.getString(4),
@@ -60,7 +60,7 @@ public class UserDAOJDBCImpl implements UserDAO {
 
 	@Override
 	public User findByEmail(final String email) throws SQLException {
-		final String selectQuery = "SELECT * FROM user WHERE Email = '" + email + "'";
+		final String selectQuery = "SELECT id, name, email, password, role FROM user WHERE Email = '" + email + "'";
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		if (resultSet.next()) {
 			return new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4),
