@@ -83,7 +83,6 @@ public class Registration extends JFrame {
 			final String password = new String(Registration.this.passwordField.getPassword());
 			final String confirmPassword = new String(Registration.this.confirmPasswordField.getPassword());
 			try {
-				final int id = Registration.this.ubs.getLastId();
 				if (Registration.this.nameField.getText().length() < 4) {
 					new JOptionPane().showMessageDialog(Registration.this, "Name must have at least 4 characters");
 				} else if (Registration.this.emailField.getText().length() < 5) {
@@ -94,7 +93,7 @@ public class Registration extends JFrame {
 				} else if (!password.equals(confirmPassword)) {
 					new JOptionPane().showMessageDialog(Registration.this, "Passwords must match");
 				} else {
-					final User user = new User(id + 1, Registration.this.nameField.getText(),
+					final User user = new User(Registration.this.nameField.getText(),
 							Registration.this.emailField.getText(), password, "user");
 					Registration.this.ubs.save(user);
 					new JOptionPane().showMessageDialog(Registration.this, "Done");

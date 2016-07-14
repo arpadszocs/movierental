@@ -1,7 +1,5 @@
 package com.movierental.gui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.SQLException;
@@ -15,8 +13,8 @@ import javax.swing.JTextField;
 
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
-import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.UserDAOJDBCImpl;
+import com.movierental.dao.factory.DAOFactory;
+import com.movierental.dao.factory.HibernateDAOFactory;
 import com.movierental.pojo.User;
 
 @SuppressWarnings("serial")
@@ -29,9 +27,12 @@ public class LoginWindow extends JFrame {
 	private final JButton register;
 	private final JButton exit;
 	private final UserBusisessService ubs;
+	private final DAOFactory daoFactory;
 
+	@SuppressWarnings("static-access")
 	public LoginWindow() {
-		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
+		this.daoFactory = new HibernateDAOFactory();
+		this.ubs = new UserBusinessServiceImpl(this.daoFactory.getUserDAO());
 
 		this.getContentPane().setLayout(null);
 
@@ -66,39 +67,34 @@ public class LoginWindow extends JFrame {
 
 		this.getRootPane().setDefaultButton(this.login);
 
-		this.login.addActionListener(new ActionListener() {
+		this.login.addActionListener(arg0 -> {
 
-			@SuppressWarnings("static-access")
-			@Override
-			public void actionPerformed(final ActionEvent arg0) {
+			try {
+				final User user = LoginWindow.this.ubs.findByEmail(LoginWindow.this.emailField.getText());
+				final String password = new String(LoginWindow.this.passwordField.getPassword());
+				if (LoginWindow.this.emailField.getText().equals("")
+						|| LoginWindow.this.ubs.findByEmail(LoginWindow.this.emailField.getText()) == null) {
+					new JOptionPane().showMessageDialog(LoginWindow.this, "Wrong Username or Password", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				} else
 
-				try {
-					final User user = LoginWindow.this.ubs.findByEmail(LoginWindow.this.emailField.getText());
-					final String password = new String(LoginWindow.this.passwordField.getPassword());
-					if (LoginWindow.this.emailField.getText().equals("")
-							|| LoginWindow.this.ubs.findByEmail(LoginWindow.this.emailField.getText()) == null) {
-						new JOptionPane().showMessageDialog(LoginWindow.this, "Wrong Username or Password", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					} else
-
-					if (user.getPassword().equals(password)) {
-						if (user.getRole().equals("user")) {
-							new UserWindow(user).setupWindow();
-							LoginWindow.this.dispose();
-						} else {
-							new AdminWindow().setupWindow();
-							LoginWindow.this.dispose();
-						}
+				if (user.getPassword().equals(password)) {
+					if (user.getRole().equals("user")) {
+						new UserWindow(user).setupWindow();
+						LoginWindow.this.dispose();
 					} else {
-						new JOptionPane().showMessageDialog(LoginWindow.this, "Wrong Password", "Password error",
-								JOptionPane.ERROR_MESSAGE);
+						new AdminWindow().setupWindow();
+						LoginWindow.this.dispose();
 					}
-
-				} catch (final SQLException e) {
-					e.printStackTrace();
+				} else {
+					new JOptionPane().showMessageDialog(LoginWindow.this, "Wrong Password", "Password error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 
+			} catch (final SQLException e) {
+				e.printStackTrace();
 			}
+
 		});
 
 		this.login.addKeyListener(new KeyListener() {
@@ -148,24 +144,13 @@ public class LoginWindow extends JFrame {
 			}
 		});
 
-		this.register.addActionListener(new ActionListener() {
+		this.register.addActionListener(arg0 -> {
+			new Registration().setupWindow();
+			LoginWindow.this.dispose();
 
-			@Override
-			public void actionPerformed(final ActionEvent arg0) {
-				new Registration().setupWindow();
-				LoginWindow.this.dispose();
-
-			}
 		});
 
-		this.exit.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				System.exit(0);
-
-			}
-		});
+		this.exit.addActionListener(e -> System.exit(0));
 
 	}
 

@@ -22,10 +22,8 @@ import com.movierental.bs.RentalBusinessService;
 import com.movierental.bs.RentalBusinessServiceImpl;
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
-import com.movierental.dao.FilmDAOJDBCImpl;
-import com.movierental.dao.MySQLConnection;
-import com.movierental.dao.RentalDAOJDBCImpl;
-import com.movierental.dao.UserDAOJDBCImpl;
+import com.movierental.dao.factory.DAOFactory;
+import com.movierental.dao.factory.HibernateDAOFactory;
 import com.movierental.pojo.Film;
 import com.movierental.pojo.Rental;
 import com.movierental.pojo.User;
@@ -61,6 +59,8 @@ public class UserWindow extends JFrame {
 
 	private final JLabel confirmPassLabel;
 
+	private final JLabel filmName;
+
 	private final JLabel rentDateS;
 
 	private final JLabel rentDateE;
@@ -87,12 +87,16 @@ public class UserWindow extends JFrame {
 
 	private final UserBusisessService ubs;
 
+	private final DAOFactory daoFactory;
+
 	@SuppressWarnings({ "deprecation", "static-access" })
 	public UserWindow(final User user) {
 
-		this.fbs = new FilmBusinessServiceImpl(new FilmDAOJDBCImpl(MySQLConnection.getInstance()));
-		this.rbs = new RentalBusinessServiceImpl(new RentalDAOJDBCImpl(MySQLConnection.getInstance()));
-		this.ubs = new UserBusinessServiceImpl(new UserDAOJDBCImpl(MySQLConnection.getInstance()));
+		this.daoFactory = new HibernateDAOFactory();
+
+		this.fbs = new FilmBusinessServiceImpl(this.daoFactory.getFilmDAO());
+		this.rbs = new RentalBusinessServiceImpl(this.daoFactory.getRentalDAO());
+		this.ubs = new UserBusinessServiceImpl(this.daoFactory.getUserDAO());
 
 		final java.util.Date today = new java.util.Date();
 
@@ -118,6 +122,7 @@ public class UserWindow extends JFrame {
 		this.labelPanel.add(this.label);
 
 		this.datePanel = new JPanel();
+		this.filmName = new JLabel();
 		this.rentDateS = new JLabel("Start Date");
 		this.rentDateE = new JLabel("End Date");
 
@@ -129,6 +134,7 @@ public class UserWindow extends JFrame {
 		this.dateChoserE = new JDateChooser();
 		this.dateChoserE.setLocale(this.getLocale());
 		this.dateChoserE.getJCalendar().setMinSelectableDate(today);
+		this.datePanel.add(this.filmName);
 		this.datePanel.add(this.rentDateS);
 		this.datePanel.add(this.dateChoserS);
 		this.datePanel.add(this.rentDateE);
@@ -159,6 +165,8 @@ public class UserWindow extends JFrame {
 		});
 
 		this.rent.addActionListener(e -> {
+			this.filmName.setText(this.model.getValueAt(this.filmTable.getSelectedRow(), 1).toString());
+			this.filmName.setHorizontalAlignment(JLabel.CENTER);
 			final int result = JOptionPane.showConfirmDialog(UserWindow.this, UserWindow.this.datePanel, "Rent",
 					JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
@@ -166,12 +174,17 @@ public class UserWindow extends JFrame {
 					final int id = UserWindow.this.rbs.getLastId();
 					final Date startDate = new Date(this.dateChoserS.getDate().getTime());
 					final Date endDate = new Date(this.dateChoserE.getDate().getTime());
-					UserWindow.this.rbs.save(new Rental(id + 1,
-							Integer.parseInt(UserWindow.this.model
-									.getValueAt(UserWindow.this.filmTable.getSelectedRow(), 0).toString()),
-							user.getId(), startDate, endDate));
+					if (startDate.compareTo(endDate) <= 0) {
+						final int filmId = Integer.parseInt(UserWindow.this.model
+								.getValueAt(UserWindow.this.filmTable.getSelectedRow(), 0).toString());
+						UserWindow.this.rbs.save(new Rental(filmId, user.getId(), startDate, endDate));
 
-					new JOptionPane().showMessageDialog(UserWindow.this, "Done");
+						new JOptionPane().showMessageDialog(UserWindow.this, "Done");
+					} else {
+						new JOptionPane().showMessageDialog(UserWindow.this,
+								"The end of you rental is befor the start of your rental", "Date selection error",
+								JOptionPane.ERROR_MESSAGE);
+					}
 
 				} catch (final SQLException e2) {
 					e2.printStackTrace();
