@@ -2,11 +2,14 @@ package com.movierental.pojo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Film implements Comparable<Film> {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer Id;
 
 	@Column
@@ -34,6 +37,14 @@ public class Film implements Comparable<Film> {
 		this.year = year;
 	}
 
+	public Film(final String name, final Integer length, final String genre, final Integer year) {
+		super();
+		this.name = name;
+		this.length = length;
+		this.genre = genre;
+		this.year = year;
+	}
+
 	public Integer getId() {
 		return this.Id;
 	}
@@ -52,6 +63,26 @@ public class Film implements Comparable<Film> {
 
 	public Integer getYear() {
 		return this.year;
+	}
+
+	public void setId(final Integer id) {
+		this.Id = id;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public void setLength(final Integer length) {
+		this.length = length;
+	}
+
+	public void setGenre(final String genre) {
+		this.genre = genre;
+	}
+
+	public void setYear(final Integer year) {
+		this.year = year;
 	}
 
 	@Override

@@ -4,11 +4,14 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Rental {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer Id;
 
 	@Column
@@ -37,6 +40,14 @@ public class Rental {
 		this.endDate = endDate;
 	}
 
+	public Rental(final Integer filmId, final Integer userId, final Date startDate, final Date endDate) {
+		super();
+		this.filmId = filmId;
+		this.userId = userId;
+		this.startDate = startDate;
+		this.endDate = endDate;
+	}
+
 	public Integer getId() {
 		return this.Id;
 	}
@@ -55,6 +66,26 @@ public class Rental {
 
 	public Date getEndDate() {
 		return this.endDate;
+	}
+
+	public void setId(final Integer id) {
+		this.Id = id;
+	}
+
+	public void setFilmId(final Integer filmId) {
+		this.filmId = filmId;
+	}
+
+	public void setUserId(final Integer userId) {
+		this.userId = userId;
+	}
+
+	public void setStartDate(final Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public void setEndDate(final Date endDate) {
+		this.endDate = endDate;
 	}
 
 	@Override

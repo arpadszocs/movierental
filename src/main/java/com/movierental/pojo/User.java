@@ -2,12 +2,15 @@ package com.movierental.pojo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class User implements Comparable<User> {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer Id;
 
 	@Column
@@ -29,6 +32,14 @@ public class User implements Comparable<User> {
 	public User(final Integer id, final String name, final String email, final String password, final String role) {
 		super();
 		this.Id = id;
+		this.name = name;
+		this.email = email;
+		this.password = password;
+		this.role = role;
+	}
+
+	public User(final String name, final String email, final String password, final String role) {
+		super();
 		this.name = name;
 		this.email = email;
 		this.password = password;
@@ -57,6 +68,22 @@ public class User implements Comparable<User> {
 
 	public void setPassword(final String password) {
 		this.password = password;
+	}
+
+	public void setId(final Integer id) {
+		this.Id = id;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public void setEmail(final String email) {
+		this.email = email;
+	}
+
+	public void setRole(final String role) {
+		this.role = role;
 	}
 
 	@Override
