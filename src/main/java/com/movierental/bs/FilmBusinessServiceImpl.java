@@ -37,21 +37,6 @@ public class FilmBusinessServiceImpl implements FilmBusinessService {
 	}
 
 	@Override
-	public List<Film> findByName(final String name) throws SQLException {
-		return this.filmDAO.findByName(name);
-	}
-
-	@Override
-	public List<Film> findByGenre(final String genre) throws SQLException {
-		return this.filmDAO.findByGenre(genre);
-	}
-
-	@Override
-	public List<Film> findByYear(final Integer year) throws SQLException {
-		return this.filmDAO.findByYear(year);
-	}
-
-	@Override
 	public int getLastId() throws SQLException {
 		return this.filmDAO.getLastId();
 	}
@@ -64,6 +49,21 @@ public class FilmBusinessServiceImpl implements FilmBusinessService {
 	@Override
 	public void renumber() throws SQLException {
 		this.filmDAO.renumber();
+	}
+
+	@Override
+	public List<Film> findByName(final String name) throws SQLException {
+		return this.filmDAO.findByName(name);
+	}
+
+	@Override
+	public List<Film> findByGenre(final String genre) throws SQLException {
+		return this.filmDAO.findByGenre(genre);
+	}
+
+	@Override
+	public List<Film> findByYear(final Integer year) throws SQLException {
+		return this.filmDAO.findByYear(year);
 	}
 
 }

@@ -1,15 +1,15 @@
-package com.movierental.dao;
+package com.movierental.bs;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public interface DAO<T> {
+public interface BusinessService<T> {
 
-	void save(T t) throws SQLException;
+	void save(T type) throws SQLException;
 
-	void update(T t) throws SQLException;
+	void update(T type) throws SQLException;
 
-	void delete(T t) throws SQLException;
+	void delete(T type) throws SQLException;
 
 	T findById(Integer id) throws SQLException;
 
