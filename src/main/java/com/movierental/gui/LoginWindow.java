@@ -109,7 +109,6 @@ public class LoginWindow extends JFrame {
 
 			}
 
-			@SuppressWarnings("static-access")
 			@Override
 			public void keyPressed(final KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {

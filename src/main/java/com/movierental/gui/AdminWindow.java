@@ -45,7 +45,7 @@ public class AdminWindow extends JFrame {
 	private final JButton logout;
 	private final JButton users;
 	private final JButton films;
-	private int selection = -1; // user - 0 | film - 1 | rental - 2 |
+	private int selection; // user - 0 | film - 1 | rental - 2 |
 	private DefaultTableModel userModel;
 	private DefaultTableModel filmModel;
 	private JPanel addPanel;
@@ -91,12 +91,9 @@ public class AdminWindow extends JFrame {
 		this.adminLabel = new JLabel("Admin");
 		this.header.add(this.adminLabel);
 
-		this.filmScrollPane = new JScrollPane(this.filmTable);
-		this.getContentPane().add(this.filmScrollPane, BorderLayout.CENTER);
-		this.userScrollPane = new JScrollPane(this.userTable);
+		this.userScrollPane = new JScrollPane(this.userTable());
 		this.getContentPane().add(this.userScrollPane, BorderLayout.CENTER);
-		this.rentalScrollPane = new JScrollPane(this.rentalTable);
-		this.getContentPane().add(this.rentalScrollPane, BorderLayout.CENTER);
+		this.selection = 0;
 
 		this.delete.setEnabled(false);
 		this.add.setEnabled(false);
@@ -211,16 +208,21 @@ public class AdminWindow extends JFrame {
 		}
 
 		this.filmModel.fireTableDataChanged();
-		AdminWindow.this.getContentPane().repaint();
-		AdminWindow.this.revalidate();
-
+		if (this.selection != 1) {
+			AdminWindow.this.getContentPane().repaint();
+			AdminWindow.this.revalidate();
+		}
 		return this.filmTable;
 
 	}
 
 	public void setupFilmTable() {
-		AdminWindow.this.remove(AdminWindow.this.userScrollPane);
-		AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
+		if (this.userScrollPane != null) {
+			AdminWindow.this.remove(AdminWindow.this.userScrollPane);
+		}
+		if (this.rentalScrollPane != null) {
+			AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
+		}
 		if (this.selection != 1) {
 			this.filmScrollPane = new JScrollPane(this.filmTable());
 			this.getContentPane().add(this.filmScrollPane, BorderLayout.CENTER);
@@ -235,36 +237,42 @@ public class AdminWindow extends JFrame {
 	public JTable userTable() {
 
 		final String[] colName = { "Id", "Name", "Email", "Password" };
-		if (this.userTable == null) {
-			this.userTable = new JTable() {
-				@Override
-				public boolean isCellEditable(final int nRow, final int nCol) {
-					return false;
-				}
-			};
-			this.userModel = (DefaultTableModel) this.userTable.getModel();
-			this.userModel.setColumnIdentifiers(colName);
-			this.userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			try {
-				for (final User user : this.ubs.selectAll()) {
-					final Object[] data = new Object[] { user.getId(), user.getName(), user.getEmail(),
-							user.getPassword() };
-					this.userModel.addRow(data);
-				}
-
-			} catch (final SQLException e) {
-				e.printStackTrace();
+		this.userTable = new JTable() {
+			@Override
+			public boolean isCellEditable(final int nRow, final int nCol) {
+				return false;
 			}
+		};
+		this.userModel = (DefaultTableModel) this.userTable.getModel();
+		this.userModel.setColumnIdentifiers(colName);
+		this.userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		try {
+			for (final User user : this.ubs.selectAll()) {
+				final Object[] data = new Object[] { user.getId(), user.getName(), user.getEmail(),
+						user.getPassword() };
+				this.userModel.addRow(data);
+			}
+
+		} catch (final SQLException e) {
+			e.printStackTrace();
 		}
 
 		this.userModel.fireTableDataChanged();
+		if (this.selection != 0) {
+			AdminWindow.this.getContentPane().repaint();
+			AdminWindow.this.revalidate();
+		}
 		return this.userTable;
 
 	}
 
 	public void setupUserTable() {
-		AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
-		AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+		if (this.rentalScrollPane != null) {
+			AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
+		}
+		if (this.filmScrollPane != null) {
+			AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+		}
 		if (this.selection != 0) {
 			this.userScrollPane = new JScrollPane(this.userTable());
 			this.getContentPane().add(this.userScrollPane, BorderLayout.CENTER);
@@ -304,13 +312,21 @@ public class AdminWindow extends JFrame {
 		}
 
 		this.rentalModel.fireTableDataChanged();
+		if (this.selection != 2) {
+			AdminWindow.this.getContentPane().repaint();
+			AdminWindow.this.revalidate();
+		}
 		return this.rentalTable;
 
 	}
 
 	public void setupRentalTable() {
-		AdminWindow.this.remove(AdminWindow.this.userScrollPane);
-		AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+		if (this.userScrollPane != null) {
+			AdminWindow.this.remove(AdminWindow.this.userScrollPane);
+		}
+		if (this.filmScrollPane != null) {
+			AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+		}
 		if (this.selection != 2) {
 			this.rentalScrollPane = new JScrollPane(this.rentalTable());
 			this.getContentPane().add(this.rentalScrollPane, BorderLayout.CENTER);
