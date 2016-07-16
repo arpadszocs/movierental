@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ import com.movierental.dao.MySQLConnection;
 import com.movierental.dao.RentalDAOJDBCImpl;
 import com.movierental.pojo.Rental;
 
-public class RentalDAOTest {
+public class RentalDAOJDBCTest {
 	private Rental rental;
 	private RentalDAOJDBCImpl rentalDAO;
 	@SuppressWarnings("deprecation")
@@ -32,6 +33,7 @@ public class RentalDAOTest {
 	public void testRentalDAOsaveMethod() {
 		try {
 			this.rentalDAO.save(this.rental);
+			Assert.assertEquals(this.rental, this.rentalDAO.findById(100));
 			this.rentalDAO.delete(this.rental);
 		} catch (final SQLException e) {
 			e.printStackTrace();
@@ -42,9 +44,11 @@ public class RentalDAOTest {
 	public void testRentalDAOupdateMethod() throws SQLException {
 		try {
 			this.rentalDAO.save(this.rental);
-			// TODO: change start date
+			this.rental.setStartDate(new Date(new java.util.Date().getTime()));
 			this.rentalDAO.update(this.rental);
-			// TODO: retrieve from db and check for equality (.equals())
+			System.out.println(this.rental.getStartDate().getClass().getTypeName() + " "
+					+ this.rentalDAO.findById(100).getStartDate().getClass().getTypeName());
+			Assert.assertEquals(this.rental, this.rentalDAO.findById(100));
 		} catch (final SQLException e) {
 			e.printStackTrace();
 		} finally {

@@ -10,7 +10,7 @@ import com.movierental.dao.MySQLConnection;
 import com.movierental.dao.UserDAOJDBCImpl;
 import com.movierental.pojo.User;
 
-public class UserDAOTest {
+public class UserDAOJDBCTest {
 
 	private User user;
 	private UserDAOJDBCImpl userDAO;
@@ -29,7 +29,6 @@ public class UserDAOTest {
 			this.userDAO.save(this.user);
 			Assert.assertTrue(this.userDAO.findByName("Name").equals(this.user));
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			this.userDAO.delete(this.user);
@@ -41,11 +40,11 @@ public class UserDAOTest {
 	public void testUserDAOupdateMethod() throws SQLException {
 		try {
 			this.userDAO.save(this.user);
+			this.user.setEmail("TestEmail");
 			this.userDAO.update(this.user);
 			final User updatedObj = this.userDAO.findByName("Name");
 			Assert.assertEquals(updatedObj, this.user);
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			this.userDAO.delete(this.user);

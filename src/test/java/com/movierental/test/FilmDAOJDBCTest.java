@@ -13,7 +13,7 @@ import com.movierental.dao.FilmDAOJDBCImpl;
 import com.movierental.dao.MySQLConnection;
 import com.movierental.pojo.Film;
 
-public class FilmDAOTest {
+public class FilmDAOJDBCTest {
 	private Film film;
 	private FilmDAOJDBCImpl filmDAO;
 
@@ -38,6 +38,7 @@ public class FilmDAOTest {
 	public void testFilmDAOupdateMethod() throws SQLException {
 		try {
 			this.filmDAO.save(this.film);
+			this.film.setGenre("TestGenre");
 			this.filmDAO.update(this.film);
 			Assert.assertTrue(!this.filmDAO.findByName("Film name").equals(this.film));
 
