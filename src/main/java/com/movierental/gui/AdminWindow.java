@@ -23,7 +23,7 @@ import com.movierental.bs.RentalBusinessServiceImpl;
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
 import com.movierental.dao.factory.DAOFactory;
-import com.movierental.dao.factory.HibernateDAOFactory;
+import com.movierental.dao.factory.JDBCDAOFactory;
 import com.movierental.pojo.Film;
 import com.movierental.pojo.Rental;
 import com.movierental.pojo.User;
@@ -36,7 +36,7 @@ public class AdminWindow extends JFrame {
 	private JScrollPane filmScrollPane;
 	private JScrollPane userScrollPane;
 	private JScrollPane rentalScrollPane;
-	private final JPanel panel;
+	private final JPanel buttonPanel;
 	private final JButton add;
 	private final JButton delete;
 	private final JButton rentals;
@@ -45,14 +45,14 @@ public class AdminWindow extends JFrame {
 	private final JButton logout;
 	private final JButton users;
 	private final JButton films;
-	private int selection;
+	private int selection = -1; // user - 0 | film - 1 | rental - 2 |
 	private DefaultTableModel userModel;
 	private DefaultTableModel filmModel;
-	private final JPanel addPanel;
-	private final JTextField filmName;
-	private final JTextField filmLength;
-	private final JTextField filmGenre;
-	private final JTextField filmYear;
+	private JPanel addPanel;
+	private JTextField filmName;
+	private JTextField filmLength;
+	private JTextField filmGenre;
+	private JTextField filmYear;
 	private final FilmBusinessService fbs;
 	private final UserBusisessService ubs;
 	private final RentalBusinessService rbs;
@@ -60,30 +60,30 @@ public class AdminWindow extends JFrame {
 
 	@SuppressWarnings("static-access")
 	public AdminWindow() {
-		final DAOFactory daoFactory = new HibernateDAOFactory();
+		final DAOFactory daoFactory = new JDBCDAOFactory();
 		this.fbs = new FilmBusinessServiceImpl(daoFactory.getFilmDAO());
 		this.ubs = new UserBusinessServiceImpl(daoFactory.getUserDAO());
 		this.rbs = new RentalBusinessServiceImpl(daoFactory.getRentalDAO());
-		this.panel = new JPanel();
-		this.getContentPane().add(this.panel, BorderLayout.SOUTH);
+		this.buttonPanel = new JPanel();
+		this.getContentPane().add(this.buttonPanel, BorderLayout.SOUTH);
 
 		this.add = new JButton("Add");
-		this.panel.add(this.add);
+		this.buttonPanel.add(this.add);
 
 		this.delete = new JButton("Delete");
-		this.panel.add(this.delete);
+		this.buttonPanel.add(this.delete);
 
 		this.users = new JButton("Users");
-		this.panel.add(this.users);
+		this.buttonPanel.add(this.users);
 
 		this.films = new JButton("Films");
-		this.panel.add(this.films);
+		this.buttonPanel.add(this.films);
 
 		this.rentals = new JButton("Rentals");
-		this.panel.add(this.rentals);
+		this.buttonPanel.add(this.rentals);
 
 		this.logout = new JButton("Logout");
-		this.panel.add(this.logout);
+		this.buttonPanel.add(this.logout);
 
 		this.header = new JPanel();
 		this.getContentPane().add(this.header, BorderLayout.NORTH);
@@ -98,38 +98,231 @@ public class AdminWindow extends JFrame {
 		this.rentalScrollPane = new JScrollPane(this.rentalTable);
 		this.getContentPane().add(this.rentalScrollPane, BorderLayout.CENTER);
 
+		this.delete.setEnabled(false);
+		this.add.setEnabled(false);
+
+		this.rentals.addActionListener(e -> {
+			this.setupRentalTable();
+		});
 		this.users.addActionListener(e -> {
-			AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
-			AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
-			AdminWindow.this.userTable();
-			AdminWindow.this.getContentPane().repaint();
-			AdminWindow.this.revalidate();
-			AdminWindow.this.selection = 0;
-			AdminWindow.this.delete.setEnabled(true);
-			AdminWindow.this.add.setEnabled(false);
+			this.setupUserTable();
 		});
-
 		this.films.addActionListener(e -> {
-			AdminWindow.this.remove(AdminWindow.this.userScrollPane);
-			AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
-			AdminWindow.this.filmTable();
-			AdminWindow.this.getContentPane().repaint();
-			AdminWindow.this.revalidate();
-			AdminWindow.this.selection = 1;
-			AdminWindow.this.delete.setEnabled(true);
-			AdminWindow.this.add.setEnabled(true);
-
-		});
-		this.rentals.addActionListener(arg0 -> {
-			AdminWindow.this.remove(AdminWindow.this.userScrollPane);
-			AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
-			AdminWindow.this.rentalTable();
-			AdminWindow.this.getContentPane().repaint();
-			AdminWindow.this.revalidate();
-			AdminWindow.this.delete.setEnabled(false);
-			AdminWindow.this.add.setEnabled(false);
+			this.setupFilmTable();
 		});
 
+		this.addPanel();
+		this.add.addActionListener(e -> {
+
+			final int result = JOptionPane.showConfirmDialog(AdminWindow.this, AdminWindow.this.addPanel,
+					"Enter a new film", JOptionPane.OK_CANCEL_OPTION);
+
+			if (result == JOptionPane.OK_OPTION) {
+
+				try {
+					// final int id = this.fbs.getLastId();
+					AdminWindow.this.fbs.save(new Film(AdminWindow.this.filmName.getText(),
+							Integer.parseInt(AdminWindow.this.filmLength.getText()),
+							AdminWindow.this.filmGenre.getText(),
+							Integer.parseInt(AdminWindow.this.filmYear.getText())));
+					AdminWindow.this.getContentPane().revalidate();
+					AdminWindow.this.getContentPane().repaint();
+				} catch (NumberFormatException | SQLException exception) {
+					new JOptionPane().showMessageDialog(AdminWindow.this, "Wrong input", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+				AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+				this.selection = -1;
+				this.setupFilmTable();
+			}
+
+		});
+
+		this.delete.addActionListener(e -> {
+			try {
+				if (AdminWindow.this.selection == 0) {
+					final int selectedRow1 = AdminWindow.this.userTable.getSelectedRow();
+					final int id1 = Integer.parseInt(AdminWindow.this.userModel.getValueAt(selectedRow1, 0).toString());
+					AdminWindow.this.ubs.delete(AdminWindow.this.ubs.findById(id1));
+					if (AdminWindow.this.rbs.findByUserId(id1) != null) {
+						for (final Rental rental1 : AdminWindow.this.rbs.findByUserId(id1)) {
+							AdminWindow.this.rbs.delete(rental1);
+						}
+					}
+					AdminWindow.this.userModel.removeRow(selectedRow1);
+					AdminWindow.this.getContentPane().revalidate();
+					AdminWindow.this.getContentPane().repaint();
+				} else if (AdminWindow.this.selection == 1) {
+					final int selectedRow2 = AdminWindow.this.filmTable.getSelectedRow();
+					final int id2 = Integer.parseInt(AdminWindow.this.filmModel.getValueAt(selectedRow2, 0).toString());
+					AdminWindow.this.fbs.delete(AdminWindow.this.fbs.findById(id2));
+					if (AdminWindow.this.rbs.findByFilmId(id2) != null) {
+						for (final Rental rental2 : AdminWindow.this.rbs.findByFilmId(id2)) {
+							AdminWindow.this.rbs.delete(rental2);
+						}
+					}
+					AdminWindow.this.filmModel.removeRow(selectedRow2);
+					AdminWindow.this.getContentPane().revalidate();
+					AdminWindow.this.getContentPane().repaint();
+				}
+			} catch (final SQLException e1) {
+				e1.printStackTrace();
+			}
+
+		});
+
+		this.logout.addActionListener(e -> {
+			new LoginWindow().setupWindow();
+			AdminWindow.this.dispose();
+
+		});
+	}
+
+	public void setupWindow() {
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setSize(550, 500);
+		this.setLocation(400, 200);
+		this.setVisible(true);
+		this.setResizable(false);
+	}
+
+	public JTable filmTable() {
+
+		final String[] colName = { "Id", "Name", "Length", "Genre", "Year" };
+
+		this.filmTable = new JTable() {
+			@Override
+			public boolean isCellEditable(final int nRow, final int nCol) {
+				return false;
+			}
+		};
+		this.filmModel = (DefaultTableModel) this.filmTable.getModel();
+		this.filmModel.setColumnIdentifiers(colName);
+		this.filmTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		try {
+			for (final Film film : this.fbs.selectAll()) {
+				final Object[] data = new Object[] { film.getId(), film.getName(), film.getLength(), film.getGenre(),
+						film.getYear() };
+				this.filmModel.addRow(data);
+			}
+
+		} catch (final SQLException e) {
+			e.printStackTrace();
+		}
+
+		this.filmModel.fireTableDataChanged();
+		AdminWindow.this.getContentPane().repaint();
+		AdminWindow.this.revalidate();
+
+		return this.filmTable;
+
+	}
+
+	public void setupFilmTable() {
+		AdminWindow.this.remove(AdminWindow.this.userScrollPane);
+		AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
+		if (this.selection != 1) {
+			this.filmScrollPane = new JScrollPane(this.filmTable());
+			this.getContentPane().add(this.filmScrollPane, BorderLayout.CENTER);
+			AdminWindow.this.getContentPane().repaint();
+			AdminWindow.this.revalidate();
+		}
+		AdminWindow.this.selection = 1;
+		AdminWindow.this.delete.setEnabled(true);
+		AdminWindow.this.add.setEnabled(true);
+	}
+
+	public JTable userTable() {
+
+		final String[] colName = { "Id", "Name", "Email", "Password" };
+		if (this.userTable == null) {
+			this.userTable = new JTable() {
+				@Override
+				public boolean isCellEditable(final int nRow, final int nCol) {
+					return false;
+				}
+			};
+			this.userModel = (DefaultTableModel) this.userTable.getModel();
+			this.userModel.setColumnIdentifiers(colName);
+			this.userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			try {
+				for (final User user : this.ubs.selectAll()) {
+					final Object[] data = new Object[] { user.getId(), user.getName(), user.getEmail(),
+							user.getPassword() };
+					this.userModel.addRow(data);
+				}
+
+			} catch (final SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		this.userModel.fireTableDataChanged();
+		return this.userTable;
+
+	}
+
+	public void setupUserTable() {
+		AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
+		AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+		if (this.selection != 0) {
+			this.userScrollPane = new JScrollPane(this.userTable());
+			this.getContentPane().add(this.userScrollPane, BorderLayout.CENTER);
+			AdminWindow.this.getContentPane().repaint();
+			AdminWindow.this.revalidate();
+		}
+		AdminWindow.this.selection = 0;
+		AdminWindow.this.delete.setEnabled(true);
+		AdminWindow.this.add.setEnabled(false);
+	}
+
+	public JTable rentalTable() {
+
+		final String[] colName = { "Id", "User", "Film", "StartDate", "EndDate" };
+		if (this.rentalTable == null) {
+			this.rentalTable = new JTable() {
+				@Override
+				public boolean isCellEditable(final int nRow, final int nCol) {
+					return false;
+				}
+			};
+			this.rentalModel = (DefaultTableModel) this.rentalTable.getModel();
+			this.rentalModel.setColumnIdentifiers(colName);
+			this.rentalTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			try {
+				for (final Rental rental : this.rbs.selectAll()) {
+					final Object[] data = new Object[] { rental.getId(),
+							this.ubs.findById(rental.getUserId()).getName(),
+							this.fbs.findById(rental.getFilmId()).getName(), rental.getStartDate(),
+							rental.getEndDate() };
+					this.rentalModel.addRow(data);
+				}
+
+			} catch (final SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		this.rentalModel.fireTableDataChanged();
+		return this.rentalTable;
+
+	}
+
+	public void setupRentalTable() {
+		AdminWindow.this.remove(AdminWindow.this.userScrollPane);
+		AdminWindow.this.remove(AdminWindow.this.filmScrollPane);
+		if (this.selection != 2) {
+			this.rentalScrollPane = new JScrollPane(this.rentalTable());
+			this.getContentPane().add(this.rentalScrollPane, BorderLayout.CENTER);
+			AdminWindow.this.getContentPane().repaint();
+			AdminWindow.this.revalidate();
+		}
+		AdminWindow.this.selection = 2;
+		AdminWindow.this.delete.setEnabled(false);
+		AdminWindow.this.add.setEnabled(false);
+	}
+
+	public void addPanel() {
 		this.addPanel = new JPanel();
 		this.filmName = new JTextField(10);
 		this.filmLength = new JTextField(5);
@@ -174,140 +367,6 @@ public class AdminWindow extends JFrame {
 		this.addPanel.add(this.filmGenre);
 		this.addPanel.add(this.filmYear);
 
-		this.add.addActionListener(e -> {
-
-			final int result = JOptionPane.showConfirmDialog(AdminWindow.this, AdminWindow.this.addPanel,
-					"Enter a new film", JOptionPane.OK_CANCEL_OPTION);
-
-			if (result == JOptionPane.OK_OPTION) {
-
-				try {
-					AdminWindow.this.fbs.save(new Film(AdminWindow.this.filmName.getText(),
-							Integer.parseInt(AdminWindow.this.filmLength.getText()),
-							AdminWindow.this.filmGenre.getText(),
-							Integer.parseInt(AdminWindow.this.filmYear.getText())));
-					AdminWindow.this.getContentPane().revalidate();
-					AdminWindow.this.getContentPane().repaint();
-				} catch (NumberFormatException | SQLException exception) {
-					new JOptionPane().showMessageDialog(AdminWindow.this, "Wrong input", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-
-		});
-
-		this.delete.addActionListener(e -> {
-			try {
-				if (AdminWindow.this.selection == 0) {
-					final int selectedRow1 = AdminWindow.this.userTable.getSelectedRow();
-					final int id1 = Integer.parseInt(AdminWindow.this.userModel.getValueAt(selectedRow1, 0).toString());
-					AdminWindow.this.ubs.delete(AdminWindow.this.ubs.findById(id1));
-					if (AdminWindow.this.rbs.findByUserId(id1) != null) {
-						for (final Rental rental1 : AdminWindow.this.rbs.findByUserId(id1)) {
-							AdminWindow.this.rbs.delete(rental1);
-						}
-					}
-					System.out.println(selectedRow1);
-					AdminWindow.this.userTable.remove(selectedRow1);
-					AdminWindow.this.getContentPane().revalidate();
-					AdminWindow.this.getContentPane().repaint();
-				} else if (AdminWindow.this.selection == 1) {
-					final int selectedRow2 = AdminWindow.this.filmTable.getSelectedRow();
-					final int id2 = Integer.parseInt(AdminWindow.this.filmModel.getValueAt(selectedRow2, 0).toString());
-					AdminWindow.this.fbs.delete(AdminWindow.this.fbs.findById(id2));
-					if (AdminWindow.this.rbs.findByFilmId(id2) != null) {
-						for (final Rental rental2 : AdminWindow.this.rbs.findByFilmId(id2)) {
-							AdminWindow.this.rbs.delete(rental2);
-						}
-					}
-					System.out.println(selectedRow2);
-					AdminWindow.this.filmTable.remove(selectedRow2);
-					AdminWindow.this.getContentPane().revalidate();
-					AdminWindow.this.getContentPane().repaint();
-				}
-			} catch (final SQLException e1) {
-				e1.printStackTrace();
-			}
-
-		});
-
-		this.logout.addActionListener(e -> {
-			new LoginWindow().setupWindow();
-			AdminWindow.this.dispose();
-
-		});
-	}
-
-	public void setupWindow() {
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(450, 400);
-		this.setLocation(400, 200);
-		this.setVisible(true);
-		this.setResizable(false);
-	}
-
-	@SuppressWarnings("static-access")
-	public void filmTable() {
-
-		this.filmTable = new JTable(new DefaultTableModel(new Object[] { "Id", "Name", "Length", "Genre", "Year" }, 0));
-		this.filmModel = (DefaultTableModel) this.filmTable.getModel();
-
-		this.filmTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		try {
-			for (final Film film : this.fbs.selectAll()) {
-				this.filmModel.addRow(new Object[] { film.getId(), film.getName(), film.getLength(), film.getGenre(),
-						film.getYear() });
-			}
-
-		} catch (
-
-		final SQLException e2)
-
-		{
-			new JOptionPane().showMessageDialog(AdminWindow.this, "Cannot add films", "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-
-		this.filmScrollPane = new JScrollPane(this.filmTable);
-		this.getContentPane().add(this.filmScrollPane, BorderLayout.CENTER);
-
-	}
-
-	public void userTable() {
-
-		this.userTable = new JTable(new DefaultTableModel(new Object[] { "Id", "Name", "email", "password" }, 0));
-		this.userModel = (DefaultTableModel) this.userTable.getModel();
-		this.userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		try {
-			for (final User user : this.ubs.selectAll()) {
-				this.userModel
-						.addRow(new Object[] { user.getId(), user.getName(), user.getEmail(), user.getPassword() });
-			}
-
-		} catch (final SQLException e) {
-			e.printStackTrace();
-		}
-		this.userScrollPane = new JScrollPane(this.userTable);
-		this.getContentPane().add(this.userScrollPane, BorderLayout.CENTER);
-	}
-
-	public void rentalTable() {
-
-		this.rentalTable = new JTable(
-				new DefaultTableModel(new Object[] { "Id", "FilmId", "UserId", "StartDate", "EndDate" }, 0));
-		this.rentalModel = (DefaultTableModel) this.rentalTable.getModel();
-		this.rentalTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		try {
-			for (final Rental rental : this.rbs.selectAll()) {
-				this.rentalModel.addRow(new Object[] { rental.getId(), rental.getFilmId(), rental.getUserId(),
-						rental.getStartDate(), rental.getEndDate() });
-			}
-		} catch (final SQLException e) {
-			e.printStackTrace();
-		}
-		this.rentalScrollPane = new JScrollPane(this.rentalTable);
-		this.getContentPane().add(this.rentalScrollPane, BorderLayout.CENTER);
 	}
 
 }

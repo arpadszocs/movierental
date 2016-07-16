@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 import com.movierental.bs.UserBusinessServiceImpl;
 import com.movierental.bs.UserBusisessService;
 import com.movierental.dao.factory.DAOFactory;
-import com.movierental.dao.factory.HibernateDAOFactory;
+import com.movierental.dao.factory.JDBCDAOFactory;
 import com.movierental.pojo.User;
 
 @SuppressWarnings("serial")
@@ -31,7 +31,7 @@ public class LoginWindow extends JFrame {
 
 	@SuppressWarnings("static-access")
 	public LoginWindow() {
-		this.daoFactory = new HibernateDAOFactory();
+		this.daoFactory = new JDBCDAOFactory();
 		this.ubs = new UserBusinessServiceImpl(this.daoFactory.getUserDAO());
 
 		this.getContentPane().setLayout(null);
