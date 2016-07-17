@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.movierental.bs.FilmBusinessService;
@@ -186,14 +187,21 @@ public class AdminWindow extends JFrame {
 	public JTable filmTable() {
 
 		final String[] colName = { "Id", "Name", "Length", "Genre", "Year" };
-
-		this.filmTable = new JTable() {
+		this.filmModel = new DefaultTableModel() {
+			@Override
+			public Class<?> getColumnClass(final int column) {
+				if (column == 0) {
+					return Integer.class;
+				}
+				return super.getColumnClass(column);
+			}
+		};
+		this.filmTable = new JTable(this.filmModel) {
 			@Override
 			public boolean isCellEditable(final int nRow, final int nCol) {
 				return false;
 			}
 		};
-		this.filmModel = (DefaultTableModel) this.filmTable.getModel();
 		this.filmModel.setColumnIdentifiers(colName);
 		this.filmTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		try {
@@ -212,6 +220,11 @@ public class AdminWindow extends JFrame {
 			AdminWindow.this.getContentPane().repaint();
 			AdminWindow.this.revalidate();
 		}
+		final DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+		this.filmTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+		this.filmTable.setAutoCreateRowSorter(true);
+		this.filmTable.getTableHeader().setReorderingAllowed(false);
 		return this.filmTable;
 
 	}
@@ -237,7 +250,16 @@ public class AdminWindow extends JFrame {
 	public JTable userTable() {
 
 		final String[] colName = { "Id", "Name", "Email", "Password" };
-		this.userTable = new JTable() {
+		this.userModel = new DefaultTableModel() {
+			@Override
+			public Class<?> getColumnClass(final int column) {
+				if (column == 0) {
+					return Integer.class;
+				}
+				return super.getColumnClass(column);
+			}
+		};
+		this.userTable = new JTable(this.userModel) {
 			@Override
 			public boolean isCellEditable(final int nRow, final int nCol) {
 				return false;
@@ -262,6 +284,11 @@ public class AdminWindow extends JFrame {
 			AdminWindow.this.getContentPane().repaint();
 			AdminWindow.this.revalidate();
 		}
+		final DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+		this.userTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+		this.userTable.setAutoCreateRowSorter(true);
+		this.userTable.getTableHeader().setReorderingAllowed(false);
 		return this.userTable;
 
 	}
@@ -287,14 +314,22 @@ public class AdminWindow extends JFrame {
 	public JTable rentalTable() {
 
 		final String[] colName = { "Id", "User", "Film", "StartDate", "EndDate" };
+		this.rentalModel = new DefaultTableModel() {
+			@Override
+			public Class<?> getColumnClass(final int column) {
+				if (column == 0) {
+					return Integer.class;
+				}
+				return super.getColumnClass(column);
+			}
+		};
 		if (this.rentalTable == null) {
-			this.rentalTable = new JTable() {
+			this.rentalTable = new JTable(this.rentalModel) {
 				@Override
 				public boolean isCellEditable(final int nRow, final int nCol) {
 					return false;
 				}
 			};
-			this.rentalModel = (DefaultTableModel) this.rentalTable.getModel();
 			this.rentalModel.setColumnIdentifiers(colName);
 			this.rentalTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			try {
@@ -316,6 +351,11 @@ public class AdminWindow extends JFrame {
 			AdminWindow.this.getContentPane().repaint();
 			AdminWindow.this.revalidate();
 		}
+		final DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+		this.rentalTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+		this.rentalTable.setAutoCreateRowSorter(true);
+		this.rentalTable.getTableHeader().setReorderingAllowed(false);
 		return this.rentalTable;
 
 	}

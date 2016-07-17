@@ -14,6 +14,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.movierental.bs.FilmBusinessService;
@@ -187,6 +188,9 @@ public class UserWindow extends JFrame {
 							UserWindow.this.rbs.save(new Rental(filmId, this.user.getId(), startDate, endDate));
 
 							new JOptionPane().showMessageDialog(UserWindow.this, "Done");
+							this.dateChoserS.setCalendar(null);
+							this.dateChoserE.setCalendar(null);
+
 						} else {
 							new JOptionPane().showMessageDialog(UserWindow.this,
 									"The end of you rental is befor the start of your rental", "Date selection error",
@@ -218,6 +222,9 @@ public class UserWindow extends JFrame {
 							user.setPassword(this.newPass.getText());
 							this.ubs.update(user);
 							new JOptionPane().showMessageDialog(UserWindow.this, "Done");
+							this.oldPass.setText(null);
+							this.newPass.setText(null);
+							this.confirmPass.setText(null);
 						} catch (final Exception e1) {
 							e1.printStackTrace();
 						}
@@ -226,7 +233,7 @@ public class UserWindow extends JFrame {
 					}
 
 				} else {
-					new JOptionPane().showMessageDialog(UserWindow.this, "Wreong Password");
+					new JOptionPane().showMessageDialog(UserWindow.this, "Wrong Password");
 				}
 			}
 		});
@@ -249,14 +256,21 @@ public class UserWindow extends JFrame {
 	public JTable filmTable() {
 		int nr = 1;
 		final String[] colName = { "Id", "Name", "Length", "Genre", "Year" };
-
-		this.filmTable = new JTable() {
+		this.filmModel = new DefaultTableModel() {
+			@Override
+			public Class<?> getColumnClass(final int column) {
+				if (column == 0) {
+					return Integer.class;
+				}
+				return super.getColumnClass(column);
+			}
+		};
+		this.filmTable = new JTable(this.filmModel) {
 			@Override
 			public boolean isCellEditable(final int nRow, final int nCol) {
 				return false;
 			}
 		};
-		this.filmModel = (DefaultTableModel) this.filmTable.getModel();
 		this.filmModel.setColumnIdentifiers(colName);
 		this.filmTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		try {
@@ -277,6 +291,11 @@ public class UserWindow extends JFrame {
 			UserWindow.this.getContentPane().repaint();
 			UserWindow.this.revalidate();
 		}
+		final DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+		this.filmTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+		this.filmTable.setAutoCreateRowSorter(true);
+		this.filmTable.getTableHeader().setReorderingAllowed(false);
 		return this.filmTable;
 
 	}
@@ -298,13 +317,21 @@ public class UserWindow extends JFrame {
 	public JTable rentalTable() {
 		int nr = 1;
 		final String[] colName = { "Nr", "Film", "StartDate", "EndDate" };
-		this.rentalTable = new JTable() {
+		this.rentalModel = new DefaultTableModel() {
+			@Override
+			public Class<?> getColumnClass(final int column) {
+				if (column == 0) {
+					return Integer.class;
+				}
+				return super.getColumnClass(column);
+			}
+		};
+		this.rentalTable = new JTable(this.rentalModel) {
 			@Override
 			public boolean isCellEditable(final int nRow, final int nCol) {
 				return false;
 			}
 		};
-		this.rentalModel = (DefaultTableModel) this.rentalTable.getModel();
 		this.rentalModel.setColumnIdentifiers(colName);
 		this.rentalTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		try {
@@ -325,6 +352,11 @@ public class UserWindow extends JFrame {
 			UserWindow.this.getContentPane().repaint();
 			UserWindow.this.revalidate();
 		}
+		final DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+		this.rentalTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+		this.rentalTable.setAutoCreateRowSorter(true);
+		this.rentalTable.getTableHeader().setReorderingAllowed(false);
 		return this.rentalTable;
 
 	}
