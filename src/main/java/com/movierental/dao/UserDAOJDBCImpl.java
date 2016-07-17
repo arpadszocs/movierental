@@ -82,7 +82,7 @@ public class UserDAOJDBCImpl implements UserDAO {
 	@Override
 	public List<User> selectAll() throws SQLException {
 		final List<User> userList = new ArrayList<>();
-		final String selectQuery = "SELECT * FROM user WHERE Role != 'admin'";
+		final String selectQuery = "SELECT id, name, email, password, role FROM user WHERE Role != 'admin'";
 		final ResultSet resultSet = this.dbConnection.select(selectQuery);
 		while (resultSet.next()) {
 			userList.add(new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3),

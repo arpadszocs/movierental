@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,12 +39,14 @@ public class AdminWindow extends JFrame {
 	private JScrollPane userScrollPane;
 	private JScrollPane rentalScrollPane;
 	private final JPanel buttonPanel;
+	private final JPanel updatePanel;
 	private final JButton add;
 	private final JButton delete;
 	private final JButton rentals;
 	private final JPanel header;
 	private final JLabel adminLabel;
 	private final JButton logout;
+	private final JButton update;
 	private final JButton users;
 	private final JButton films;
 	private int selection; // user - 0 | film - 1 | rental - 2 |
@@ -54,6 +57,9 @@ public class AdminWindow extends JFrame {
 	private JTextField filmLength;
 	private JTextField filmGenre;
 	private JTextField filmYear;
+	private final JTextField userName;
+	private final JTextField userEmail;
+	private final JTextField userPassword;
 	private final FilmBusinessService fbs;
 	private final UserBusisessService ubs;
 	private final RentalBusinessService rbs;
@@ -74,6 +80,9 @@ public class AdminWindow extends JFrame {
 		this.delete = new JButton("Delete");
 		this.buttonPanel.add(this.delete);
 
+		this.update = new JButton("Update");
+		this.buttonPanel.add(this.update);
+
 		this.users = new JButton("Users");
 		this.buttonPanel.add(this.users);
 
@@ -85,6 +94,17 @@ public class AdminWindow extends JFrame {
 
 		this.logout = new JButton("Logout");
 		this.buttonPanel.add(this.logout);
+
+		this.updatePanel = new JPanel();
+		this.userName = new JTextField(15);
+		this.userEmail = new JTextField(20);
+		this.userPassword = new JTextField(10);
+		final String[] role = { "user", "admin" };
+		final JComboBox<String> roleBox = new JComboBox<>(role);
+		this.updatePanel.add(this.userName);
+		this.updatePanel.add(this.userEmail);
+		this.updatePanel.add(this.userPassword);
+		this.updatePanel.add(roleBox);
 
 		this.header = new JPanel();
 		this.getContentPane().add(this.header, BorderLayout.NORTH);
@@ -169,6 +189,54 @@ public class AdminWindow extends JFrame {
 
 		});
 
+		this.update.addActionListener(e -> {
+			try {
+				if (AdminWindow.this.selection == 0) {
+					if (this.userTable.getSelectedRow() == -1) {
+						new JOptionPane().showMessageDialog(AdminWindow.this, "Please select a user", "Error",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						final int selectedRow1 = AdminWindow.this.userTable.getSelectedRow();
+						final int id1 = Integer
+								.parseInt(AdminWindow.this.userModel.getValueAt(selectedRow1, 0).toString());
+						this.userName.setText(this.ubs.findById(id1).getName());
+						this.userEmail.setText(this.ubs.findById(id1).getEmail());
+						this.userPassword.setText(this.ubs.findById(id1).getPassword());
+						final int result = JOptionPane.showConfirmDialog(AdminWindow.this, AdminWindow.this.updatePanel,
+								"Update user", JOptionPane.OK_CANCEL_OPTION);
+						if (result == JOptionPane.OK_OPTION) {
+							this.ubs.update(new User(id1, this.userName.getText(), this.userEmail.getText(),
+									this.userPassword.getText(), roleBox.getSelectedItem().toString()));
+							this.userModel.fireTableDataChanged();
+							AdminWindow.this.getContentPane().revalidate();
+							AdminWindow.this.getContentPane().repaint();
+
+						}
+					}
+
+				} else if (AdminWindow.this.selection == 10) { // TODO new panel
+					if (AdminWindow.this.selection == 0) {
+						if (this.userTable.getSelectedRow() == -1) {
+							new JOptionPane().showMessageDialog(AdminWindow.this, "Please select a user", "Error",
+									JOptionPane.ERROR_MESSAGE);
+						} else {
+
+							final int selectedRow2 = AdminWindow.this.filmTable.getSelectedRow();
+							final int id2 = Integer
+									.parseInt(AdminWindow.this.filmModel.getValueAt(selectedRow2, 0).toString());
+							AdminWindow.this.fbs.delete(AdminWindow.this.fbs.findById(id2));
+							AdminWindow.this.getContentPane().revalidate();
+							AdminWindow.this.getContentPane().repaint();
+						}
+					}
+				}
+			} catch (final SQLException e1) {
+				new JOptionPane().showMessageDialog(AdminWindow.this, "Wrong input", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+
+		});
+
 		this.logout.addActionListener(e -> {
 			new LoginWindow().setupWindow();
 			AdminWindow.this.dispose();
@@ -184,7 +252,7 @@ public class AdminWindow extends JFrame {
 		this.setResizable(false);
 	}
 
-	public JTable filmTable() {
+	private JTable filmTable() {
 
 		final String[] colName = { "Id", "Name", "Length", "Genre", "Year" };
 		this.filmModel = new DefaultTableModel() {
@@ -229,7 +297,7 @@ public class AdminWindow extends JFrame {
 
 	}
 
-	public void setupFilmTable() {
+	private void setupFilmTable() {
 		if (this.userScrollPane != null) {
 			AdminWindow.this.remove(AdminWindow.this.userScrollPane);
 		}
@@ -247,7 +315,7 @@ public class AdminWindow extends JFrame {
 		AdminWindow.this.add.setEnabled(true);
 	}
 
-	public JTable userTable() {
+	private JTable userTable() {
 
 		final String[] colName = { "Id", "Name", "Email", "Password" };
 		this.userModel = new DefaultTableModel() {
@@ -293,7 +361,7 @@ public class AdminWindow extends JFrame {
 
 	}
 
-	public void setupUserTable() {
+	private void setupUserTable() {
 		if (this.rentalScrollPane != null) {
 			AdminWindow.this.remove(AdminWindow.this.rentalScrollPane);
 		}
@@ -311,7 +379,7 @@ public class AdminWindow extends JFrame {
 		AdminWindow.this.add.setEnabled(false);
 	}
 
-	public JTable rentalTable() {
+	private JTable rentalTable() {
 
 		final String[] colName = { "Id", "User", "Film", "StartDate", "EndDate" };
 		this.rentalModel = new DefaultTableModel() {
@@ -360,7 +428,7 @@ public class AdminWindow extends JFrame {
 
 	}
 
-	public void setupRentalTable() {
+	private void setupRentalTable() {
 		if (this.userScrollPane != null) {
 			AdminWindow.this.remove(AdminWindow.this.userScrollPane);
 		}
@@ -378,7 +446,7 @@ public class AdminWindow extends JFrame {
 		AdminWindow.this.add.setEnabled(false);
 	}
 
-	public void addPanel() {
+	private void addPanel() {
 		this.addPanel = new JPanel();
 		this.filmName = new JTextField(10);
 		this.filmLength = new JTextField(5);
